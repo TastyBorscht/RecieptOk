@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .constants import (
@@ -34,17 +35,16 @@ class ApiUser(AbstractUser):
     last_name = models.CharField(
         'фамилия', max_length=LENGTH_CHARFIELDS, blank=True
     )
-    bio = models.CharField(
-        'описание', max_length=LENGTH_CHARFIELDS, blank=True, null=True)
+
     role = models.CharField(
         'роль', max_length=LENGTH_ROLES, blank=True,
         default=USER, choices=USER_ROLES
     )
-    confirmation_code = models.SmallIntegerField('код', default=code_random())
+
+    avatar = models.ImageField(upload_to='user/avatars/', null=True, blank=True)
     password = models.CharField(
         'пароль', max_length=LENGTH_PASSWORD, blank=True
     )
-    avatar = models.URLField(max_length=200, unique=True, blank=True)
     is_subscribed = models.BooleanField(default=False, blank=True)
 
     class Meta:
@@ -77,10 +77,3 @@ class ApiUser(AbstractUser):
         if self.role == ADMIN:
             return True
         return False
-
-    @property
-    def user_token(self):
-        refresh = RefreshToken.for_user(self)
-        return {
-            'token': str(refresh.access_token),
-        }

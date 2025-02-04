@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError, NotFound
+from rest_framework.exceptions import ValidationError
+from drf_extra_fields.fields import Base64ImageField
 
 from users.utils import validate_username
 from users.constants import (
@@ -15,6 +16,7 @@ class UsersListSerializer(serializers.ModelSerializer):
     """Сериализатор для выдачи всех пользователей всем
     по api/users.
     """
+    avatar = Base64ImageField()
     class Meta:
         model = User
         fields = (
@@ -25,28 +27,23 @@ class UsersListSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления нового пользователя
+    по POST-запросу на api/users .
+    """
     username = serializers.CharField(
         max_length=LENGTH_CHARFIELDS,
         validators=[validate_username]
     )
+    password = serializers.CharField(write_only=True)
     email = serializers.EmailField(max_length=LENGTH_EMAIL)
-
     class Meta:
         model = User
         fields = (
-            'username', 'email',
+            'email', 'username',
             'first_name', 'last_name',
-            'bio', 'role'
+            'password',
         )
-        read_only_fields = ('confirmation_code',)
-
-    def validate_role(self, value):
-        creator = self.context['creator']
-        if not creator.is_anonymous:
-            if creator.user_is_admin:
-                return value
-        raise serializers.ValidationError('У вас нет прав изменять вашу роль')
 
     def validate(self, data):
         username = data.get('username')
@@ -63,21 +60,8 @@ class UserSerializer(serializers.ModelSerializer):
             raise ValidationError(UNIQUE_EMAIL)
         return data
 
-
-class UserTokenSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-        max_length=LENGTH_CHARFIELDS,
-    )
-    confirmation_code = serializers.IntegerField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
-
-    def validate(self, data):
-        user = User.objects.filter(username=data['username'])
-        if not user.exists():
-            raise NotFound('Такого пользователя не существует')
-        elif user.get().confirmation_code == data['confirmation_code']:
-            return data
-        raise ValidationError('Неверный confirmation_code')
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user

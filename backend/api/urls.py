@@ -11,7 +11,7 @@ api_router = routers.DefaultRouter()
 
 
 urlpatterns = [
-    # path('/', include(v1_router.urls)),
-    path('users', include('api.users.urls')),
+    path('', include(api_router.urls)),
+    path('users/', include('api.users.urls')),
     # path(f'{VERSION_ONE_PREFIX}/titles/', include('api.reviews.urls')),
     ]

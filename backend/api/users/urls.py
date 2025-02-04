@@ -1,12 +1,13 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import UsersForAdminViewSet, RegistrationAuthViewSet, UsersListForAll
+from .views import UserViewSet
+# from .views import RegistrationAuthViewSet, UserViewSet
 
 
 user_router = routers.DefaultRouter()
 # user_router.register('list', UsersListForAll)
-user_router.register('', UsersListForAll)
+user_router.register('', UserViewSet)
 # user_router.register(
 #     'auth', RegistrationAuthViewSet, basename='registration_for_user'
 # )
