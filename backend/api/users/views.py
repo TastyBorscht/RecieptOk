@@ -40,14 +40,16 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-
+        request.data.user.id
         return Response({
             'email': user.email,
             'id': user.id,
             'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
-        }, status=status.HTTP_201_CREATED)
+        },
+            status=status.HTTP_201_CREATED
+        )
 
     # def perform_create(self, serializer):
     #     return serializer.save()
