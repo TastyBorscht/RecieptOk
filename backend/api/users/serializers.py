@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 
+# from api.users.validators import validate_password
 from users.utils import validate_username
 from users.constants import (
     LENGTH_CHARFIELDS, LENGTH_EMAIL, UNIQUE_EMAIL, UNIQUE_USERNAME
@@ -48,6 +50,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         username = data.get('username')
         email = data.get('email')
+        # password = data.get('password')
         user = User.objects.filter(
             username=username,
             email=email,
@@ -62,6 +65,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
             raise ValidationError(UNIQUE_USERNAME)
         if User.objects.filter(email=email).exists():
             raise ValidationError(UNIQUE_EMAIL)
+        #  проверка качества пароля
+        # validate_password(password, username, email)
+
         return data
 
     def create(self, validated_data):
@@ -78,6 +84,17 @@ class AvatarSerializer(serializers.ModelSerializer):
         model = User
         fields = ('avatar',)
 
+# class ChangePasswordSerializer(serializers.Serializer):
+#     old_password = serializers.CharField(required=True)
+#     new_password = serializers.CharField(required=True)
 
-class PasswordChangeSerializer(serializers.ModelSerializer):
-    password =
+class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Serializer for password change endpoint.
+    """
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
