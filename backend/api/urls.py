@@ -14,10 +14,11 @@ api_router = routers.DefaultRouter()
 
 
 urlpatterns = [
-    path('', include(api_router.urls)),
+    path('tags/', include('api.tags.urls')),
     path('users/', include('api.users.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path('auth/token/', include('djoser.urls.authtoken')),
+    path('', include(api_router.urls)),
     # path('api/auth/token/login/', CustomTokenCreateView.as_view(), name='token_login'),
     # path('api/auth/token/logout/', CustomTokenDestroyView.as_view(), name='token_logout'),
     # path('auth/', include('djoser.urls.authtoken')),

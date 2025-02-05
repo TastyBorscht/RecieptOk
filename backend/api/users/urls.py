@@ -14,9 +14,6 @@ user_router.register('', UserViewSet)
 # )
 urlpatterns = [
     path('set_password/', UpdatePasswordView.as_view(), name='set_password'),
-    path('', include(user_router.urls)),
     path('me/', UserViewSet.as_view({'get': 'retrieve'}), name='user-me'),
-
-    # path('users')
-    # path('', UsersListForAll.as_view()),
+    path('', include(user_router.urls)),
 ]

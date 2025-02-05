@@ -90,7 +90,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 class ChangePasswordSerializer(serializers.Serializer):
     """
-    Serializer for password change endpoint.
+    Сериализатор для смены пароля пользователя.
     """
     current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
