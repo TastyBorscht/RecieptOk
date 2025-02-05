@@ -52,6 +52,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
             username=username,
             email=email,
         )
+        if data.get('username') == 'me':
+            raise serializers.ValidationError(
+                'Использовать имя me запрещено'
+            )
         if user.exists():
             return data
         if User.objects.filter(username=username).exists():
@@ -65,3 +69,15 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class AvatarSerializer(serializers.ModelSerializer):
+    avatar = Base64ImageField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('avatar',)
+
+
+class PasswordChangeSerializer(serializers.ModelSerializer):
+    password =

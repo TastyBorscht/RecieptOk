@@ -47,6 +47,9 @@ class ApiUser(AbstractUser):
     )
     is_subscribed = models.BooleanField(default=False, blank=True)
 
+    # USERNAME_FIELD = 'email'
+    # REQUIRED_FIELDS = ['password']
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'

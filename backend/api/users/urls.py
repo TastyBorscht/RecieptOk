@@ -13,5 +13,6 @@ user_router.register('', UserViewSet)
 # )
 urlpatterns = [
     path('', include(user_router.urls)),
+    path('users/me/', UserViewSet.as_view({'get': 'retrieve'}), name='user-me'),
     # path('', UsersListForAll.as_view()),
 ]

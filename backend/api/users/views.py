@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from .serializers import User, UsersListSerializer, UserCreateSerializer
+from .serializers import User, UsersListSerializer, UserCreateSerializer, AvatarSerializer
 
 
 # from .serializers import UserTokenSerializer
@@ -24,12 +24,15 @@ from .serializers import User, UsersListSerializer, UserCreateSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     """
-    Получение списка пользователей по GET-запросу на /api/users/
-    Добавление пользователя по POST-запросу на /api/users/ .
+    Получение списка пользователей по GET-запросу на '/api/users',
+    Получение данных о пользователе по GET-запросу на '/api/users/{id}/',
+    Получение данных о пользователе по GET-запросу на '/api/users/me/',
+    Добавление пользователя по POST-запросу на '/api/users/'.
     """
     queryset = User.objects.all()
+    permission_classes = (AllowAny,)
     serializer_class = UserCreateSerializer
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'delete']
 
     def get_serializer_class(self):
         if self.request.method in ['GET']:
@@ -40,7 +43,6 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        request.data.user.id
         return Response({
             'email': user.email,
             'id': user.id,
@@ -50,6 +52,44 @@ class UserViewSet(viewsets.ModelViewSet):
         },
             status=status.HTTP_201_CREATED
         )
+
+    def get_permissions(self):
+        if self.action in [
+            'retrieve',
+            'update_avatar',
+            'delete_avatar',
+            'set_password'
+        ]:
+            return (IsAuthenticated(),)
+        return super().get_permissions()
+
+    def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+    @action(methods=['post'], detail=False, url_path='me/avatar')
+    def update_avatar(self, request):
+        user = request.user
+        serializer = AvatarSerializer(instance=user, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['delete'], detail=False, url_path='me/avatar')
+    def update_avatar(self, request):
+        user = request.user
+        if user.avatar:
+            user.avatar = None
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['patch'], detail=False, url_path='me/set_password')
+    def set_password(self, request):
+        user = request.user
+
 
     # def perform_create(self, serializer):
     #     return serializer.save()
