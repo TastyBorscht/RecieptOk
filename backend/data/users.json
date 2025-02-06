@@ -1,0 +1,58 @@
+[
+  {
+    "username": "admin666",
+    "email": "zavtrak@sosiska.ru",
+    "first_name": "Oleg",
+    "last_name": "Bryukh",
+    "role": "admin",
+    "password": "Qwerty123"
+  },
+  {
+    "username": "user1",
+    "email": "ivanov@mail.com",
+    "first_name": "Ivan",
+    "last_name": "Ivanov",
+    "role": "user",
+    "password": "Password456"
+  },
+  {
+    "username": "editor1",
+    "email": "petrov@mail.com",
+    "first_name": "Petr",
+    "last_name": "Petrov",
+    "role": "user",
+    "password": "Edit45678"
+  },
+  {
+    "username": "moderator1",
+    "email": "sidorov@mail.com",
+    "first_name": "Sidor",
+    "last_name": "Sidorov",
+    "role": "user",
+    "password": "Mod1234"
+  },
+  {
+    "username": "guest1",
+    "email": "guest@example.com",
+    "first_name": "Guest",
+    "last_name": "User",
+    "role": "user",
+    "password": "GuestPass1"
+  },
+  {
+    "username": "djaconda",
+    "email": "super@domain.com",
+    "first_name": "dja",
+    "last_name": "conda",
+    "role": "user",
+    "password": "SuperUserPass99"
+  },
+  {
+    "username": "tester1",
+    "email": "test@mail.com",
+    "first_name": "Tester",
+    "last_name": "Testov",
+    "role": "user",
+    "password": "TestPass432"
+  }
+]

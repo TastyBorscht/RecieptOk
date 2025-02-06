@@ -70,7 +70,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user)
         return Response(serializer.data)
 
-    @action(methods=['post'], detail=False, url_path='me/avatar')
+    @action(methods=['put'], detail=False, url_path='me/avatar')
     def update_avatar(self, request):
         user = request.user
         serializer = AvatarSerializer(instance=user, data=request.data)
