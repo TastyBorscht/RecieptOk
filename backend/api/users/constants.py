@@ -1,0 +1,1 @@
+RECIPES_MAX=2

@@ -1,10 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from api.users.serializers import User
 from . import constants
 
-
+User = get_user_model()
 
 class Tag(models.Model):
     """Модель для описания тегов."""

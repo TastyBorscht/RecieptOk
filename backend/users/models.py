@@ -47,8 +47,6 @@ class ApiUser(AbstractUser):
     )
     is_subscribed = models.BooleanField(default=False, blank=True)
 
-    # USERNAME_FIELD = 'email'
-    # REQUIRED_FIELDS = ['password']
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -80,3 +78,33 @@ class ApiUser(AbstractUser):
         if self.role == ADMIN:
             return True
         return False
+
+class Subscription(models.Model):
+    """Класс для подписки на авторов контента."""
+
+    subscriber = models.ForeignKey(
+        ApiUser,
+        on_delete=models.CASCADE,
+        related_name='subscriber',
+        verbose_name='подписчик'
+    )
+    author = models.ForeignKey(
+        ApiUser,
+        on_delete=models.CASCADE,
+        related_name='author',
+        verbose_name='Автор'
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ('id',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=['author', 'subscriber'],
+                name='unique_subscription'
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.subscriber} подписан на: {self.author}'
