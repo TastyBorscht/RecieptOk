@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -35,10 +35,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (
-        permissions.IsAuthenticatedOrReadOnly, AuthorOrReadOnly
+        IsAuthenticatedOrReadOnly, AuthorOrReadOnly
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+
+    def destroy(self, request, *args, **kwargs):
+        """Удаляет рецепт, если автором является текущий пользователь."""
+        recipe = self.get_object()
+        if recipe.author != request.user:
+            return Response(
+                {'detail': 'У вас нет прав на удаление этого рецепта.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().destroy(request, *args, **kwargs)
 
     @action(
         detail=True,

@@ -38,8 +38,19 @@ class UserCreateSerializer(serializers.ModelSerializer):
         max_length=LENGTH_CHARFIELDS,
         validators=[validate_username]
     )
-    password = serializers.CharField(write_only=True)
-    email = serializers.EmailField(max_length=LENGTH_EMAIL)
+    password = serializers.CharField(write_only=True, required=True)
+    email = serializers.EmailField(max_length=LENGTH_EMAIL, required=True)
+    first_name = serializers.CharField(
+        write_only=True,
+        required=True,
+        max_length=150,
+    )
+    last_name = serializers.CharField(
+        write_only=True,
+        required=True,
+        max_length=150,
+    )
+
     class Meta:
         model = User
         fields = (

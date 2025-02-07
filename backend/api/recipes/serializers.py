@@ -58,13 +58,6 @@ class RecipesListSerializer(serializers.ModelSerializer):
         return request.user.shopping_cart.filter(recipe=object).exists()
 
 
-# class CreateRecipeSerializer(serializers.ModelSerializer):
-#
-#     class Meta:
-#         model = Recipe
-#         fields = ('ingredients', 'tags', 'image', 'name', 'text', 'cooking_time')
-
-
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор объектов класса Recipe при небезопасных запросах."""
     ingredients = IngredientAmountSerializer(many=True)
@@ -125,7 +118,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             for ingredient in ingredients_data
         ])
 
-    @transaction.atomic
+    # @transaction.atomic
     def create(self, validated_data):
         author = self.context.get('request').user
         tags_data = validated_data.pop('tags')
@@ -135,7 +128,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.add_ingredients(ingredients_data, recipe)
         return recipe
 
-    @transaction.atomic
+    # @transaction.atomic
     def update(self, instance, validated_data):
         recipe = instance
         instance.image = validated_data.get('image', instance.image)

@@ -20,7 +20,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = UserCreateSerializer
-    http_method_names = ['get', 'post', 'delete']
+    http_method_names = ['get', 'post', 'delete', 'put']
 
     def get_serializer_class(self):
         if self.request.method in ['GET']:
@@ -43,38 +43,20 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in [
-            'retrieve',
             'update_avatar',
             'delete_avatar',
             'set_password',
             'get_subscribe',
+            'get_me',
         ]:
             return (IsAuthenticated(),)
         return super().get_permissions()
 
-    def retrieve(self, request, *args, **kwargs):
-        user = request.user
-        serializer = self.get_serializer(user)
+
+    @action(detail=False, methods=['get'], url_path='me/')
+    def get_me(self, request):
+        serializer = self.get_serializer(request.user)
         return Response(serializer.data)
-
-    @action(methods=['put'], detail=False, url_path='me/avatar')
-    def update_avatar(self, request):
-        user = request.user
-        serializer = AvatarSerializer(instance=user, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(methods=['delete'], detail=False, url_path='me/avatar')
-    def update_avatar(self, request):
-        user = request.user
-        if user.avatar:
-            user.avatar = None
-            user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
     @action(
         detail=True,
         methods=['post', 'delete'],
@@ -102,6 +84,29 @@ class UserViewSet(viewsets.ModelViewSet):
         )
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LegendAvatarView(APIView):
+    """Вью-класс управляющий Аватаром."""
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    def put(self, request):
+        user = request.user
+        serializer = AvatarSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request):
+        user = request.user
+        if user.avatar:
+            user.avatar.delete()
+            user.avatar = None
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class UpdatePasswordView(APIView):
