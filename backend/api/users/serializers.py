@@ -21,6 +21,7 @@ class UsersListSerializer(serializers.ModelSerializer):
     """Сериализатор для выдачи всех пользователей всем
     по api/users."""
     avatar = Base64ImageField()
+    is_subscribed = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = (
@@ -29,6 +30,13 @@ class UsersListSerializer(serializers.ModelSerializer):
             'is_subscribed', 'avatar'
         )
         read_only_fields = fields
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Subscription.objects.filter(subscriber=request.user, author=obj).exists()
+        return False
+
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

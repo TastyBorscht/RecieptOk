@@ -45,7 +45,6 @@ class ApiUser(AbstractUser):
     password = models.CharField(
         'пароль', max_length=LENGTH_PASSWORD, blank=True
     )
-    is_subscribed = models.BooleanField(default=False, blank=True)
 
 
     class Meta:
