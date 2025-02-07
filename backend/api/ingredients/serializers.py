@@ -12,7 +12,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели IngredientAmount."""
+    """Сериализатор для модели IngredientInRecipe."""
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
 

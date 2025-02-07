@@ -1,5 +1,6 @@
 [
   {
+    "1d": 1,
     "username": "admin666",
     "email": "zavtrak@sosiska.ru",
     "first_name": "Oleg",
@@ -8,6 +9,7 @@
     "password": "Qwerty123"
   },
   {
+    "1d": 2,
     "username": "user1",
     "email": "ivanov@mail.com",
     "first_name": "Ivan",
@@ -16,6 +18,7 @@
     "password": "Password456"
   },
   {
+    "1d": 3,
     "username": "editor1",
     "email": "petrov@mail.com",
     "first_name": "Petr",
@@ -24,6 +27,7 @@
     "password": "Edit45678"
   },
   {
+    "id": 4,
     "username": "moderator1",
     "email": "sidorov@mail.com",
     "first_name": "Sidor",
@@ -31,7 +35,7 @@
     "role": "user",
     "password": "Mod1234"
   },
-  {
+  { "id": 5,
     "username": "guest1",
     "email": "guest@example.com",
     "first_name": "Guest",
@@ -40,6 +44,7 @@
     "password": "GuestPass1"
   },
   {
+    "id": 6,
     "username": "djaconda",
     "email": "super@domain.com",
     "first_name": "dja",
@@ -48,6 +53,7 @@
     "password": "SuperUserPass99"
   },
   {
+    "id": 7,
     "username": "tester1",
     "email": "test@mail.com",
     "first_name": "Tester",

@@ -80,6 +80,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, ingredients):
         """Проверяем, что рецепт содержит уникальные ингредиенты
         и их количество не меньше 1."""
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Список ингредиентов не может быть пустым.'
+            )
         ingredients_data = [
             ingredient.get('id') for ingredient in ingredients
         ]
@@ -105,6 +109,14 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'Теги рецепта должны быть уникальными'
             )
         return tags
+
+    def validate_image(self, image):
+        """Проверка на наличие картинки блюда."""
+        if image is None:
+            raise serializers.ValidationError(
+                'Требуется изображение.'
+            )
+        return image
 
     @staticmethod
     def add_ingredients(ingredients_data, recipe):

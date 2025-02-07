@@ -1,5 +1,6 @@
 from django_filters import rest_framework as filters
 
+from api.users.serializers import User
 from recipes.models import Ingredient, Recipe
 
 
@@ -20,7 +21,7 @@ class RecipeFilter(filters.FilterSet):
     is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart'
     )
-    author = filters.AllValuesMultipleFilter(field_name='author__username')
+    # author = filters.AllValuesMultipleFilter(field_name='author__id')
 
     class Meta:
         model = Recipe

@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -40,12 +40,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
+
     def destroy(self, request, *args, **kwargs):
         """Удаляет рецепт, если автором является текущий пользователь."""
         recipe = self.get_object()
         if recipe.author != request.user:
             return Response(
-                {'detail': 'У вас нет прав на удаление этого рецепта.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -56,7 +56,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'],
         url_path='favorite',
         url_name='favorite',
-        permission_classes=(permissions.IsAuthenticated,)
+        permission_classes=(IsAuthenticated,)
     )
     def get_favorite(self, request, pk):
         """Позволяет текущему пользователю добавлять рецепты в избранное."""
@@ -143,9 +143,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Возвращает короткую ссылку на рецепт."""
         recipe = get_object_or_404(Recipe, pk=pk)
         long_url = request.build_absolute_uri(reverse('recipe-detail', args=[recipe.id]))
-
-        # Создаем объект для сокращения ссылки
         s = pyshorteners.Shortener()
-        short_link = s.tinyurl.short(long_url)  # Используем TinyURL
+        short_link = s.tinyurl.short(long_url)
 
         return Response({'short-link': short_link}, status=status.HTTP_200_OK)
+
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #     author_id = self.request.query_params.get('author', None)
+    #     if author_id is not None:
+    #         queryset = queryset.filter(author_id=author_id)
+    #     return queryset
