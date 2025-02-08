@@ -2,6 +2,7 @@ asgiref==3.5.2
 Django==3.2.15
 django-colorfield==0.7.2
 django-debug-toolbar==3.2.4
+django-extra-fields==3.0.2
 django-filter==22.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==4.8.0
