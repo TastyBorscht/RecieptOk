@@ -21,7 +21,7 @@ services:
       - db
   frontend:
     env_file: .env
-    image: tastyborscht/foogram_frontend
+    image: tastyborscht/foodgram_frontend
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static
