@@ -42,7 +42,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
     def destroy(self, request, *args, **kwargs):
-        """Удаляет рецепт, если автором является текущий пользователь."""
+        """Удаляет рецепт, если автором является авторизованный пользователь."""
         recipe = self.get_object()
         if recipe.author != request.user:
             return Response(
@@ -71,11 +71,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(
                 favorite_serializer.data, status=status.HTTP_201_CREATED
             )
-        favorite_recipe = get_object_or_404(
-            Favorite, user=request.user, recipe=recipe
-        )
-        favorite_recipe.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+            Favorite.objects.get(user=request.user, recipe=recipe).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        # favorite_recipe = get_object_or_404(
+        #     Favorite, user=request.user, recipe=recipe
+        # )
+        # favorite_recipe.delete()
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=True,
@@ -98,11 +101,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(
                 shopping_cart_serializer.data, status=status.HTTP_201_CREATED
             )
-        shopping_cart_recipe = get_object_or_404(
-            ShoppingCart, user=request.user, recipe=recipe
-        )
-        shopping_cart_recipe.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists():
+            ShoppingCart.objects.get(user=request.user, recipe=recipe).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        # shopping_cart_recipe = get_object_or_404(
+        #     ShoppingCart, user=request.user, recipe=recipe
+        # )
+        # shopping_cart_recipe.delete()
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=False,
@@ -148,9 +154,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return Response({'short-link': short_link}, status=status.HTTP_200_OK)
 
-    # def get_queryset(self):
-    #     queryset = super().get_queryset()
-    #     author_id = self.request.query_params.get('author', None)
-    #     if author_id is not None:
-    #         queryset = queryset.filter(author_id=author_id)
-    #     return queryset

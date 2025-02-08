@@ -72,7 +72,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 context={'request': request, 'author': author})
             if serializer.is_valid(raise_exception=True):
                 serializer.save(author=author, subscriber=user)
-                return Response({'Подписка успешно создана': serializer.data},
+                return Response(serializer.data,
                                 status=status.HTTP_201_CREATED)
             return Response({'errors': 'Объект не найден'},
                             status=status.HTTP_404_NOT_FOUND)
@@ -80,8 +80,7 @@ class UserViewSet(viewsets.ModelViewSet):
             Subscription.objects.get(author=author).delete()
             return Response('Успешная отписка',
                             status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Объект не найден'},
-                        status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False,
             methods=['get'],

@@ -224,11 +224,13 @@ class SubscribeSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
         fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+                  'last_name', 'is_subscribed', 'recipes',
+                  'recipes_count', 'avatar')
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
@@ -249,6 +251,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.author).count()
+
+    def get_avatar(self, obj):
+        if obj.author.avatar:  # Check if avatar exists
+            return obj.author.avatar.url  # Return the URL if available
+        return None
 
     def validate(self, data):
         author = self.context.get('author')

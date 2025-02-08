@@ -1,1 +1,0 @@
-VERSION_ONE_PREFIX = 'v1'

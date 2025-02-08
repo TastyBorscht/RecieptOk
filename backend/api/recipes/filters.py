@@ -1,6 +1,5 @@
 from django_filters import rest_framework as filters
 
-from api.users.serializers import User
 from recipes.models import Ingredient, Recipe
 
 
@@ -21,18 +20,31 @@ class RecipeFilter(filters.FilterSet):
     is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart'
     )
-    # author = filters.AllValuesMultipleFilter(field_name='author__id')
 
     class Meta:
         model = Recipe
         fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
+    # def get_is_favorited(self, queryset, name, value):
+    #     if value:
+    #         return queryset.filter(favoriting__user=self.request.user)
+    #     return queryset
     def get_is_favorited(self, queryset, name, value):
-        if value:
-            return queryset.filter(favoriting__user=self.request.user)
-        return queryset
+        if self.request.user.is_authenticated:
+            if value:
+                return queryset.filter(favoriting__user=self.request.user)
+            return queryset
+        # Возвращаем пустой queryset, если пользователь не авторизован
+        return queryset.none()
 
+    # def get_is_in_shopping_cart(self, queryset, name, value):
+    #     if value:
+    #         return queryset.filter(shopping_cart__user=self.request.user)
+    #     return queryset
     def get_is_in_shopping_cart(self, queryset, name, value):
-        if value:
-            return queryset.filter(shopping_cart__user=self.request.user)
-        return queryset
+        if self.request.user.is_authenticated:
+            if value:
+                return queryset.filter(shopping_cart__user=self.request.user)
+            return queryset
+        # Возвращаем пустой queryset, если пользователь не авторизован
+        return queryset.none()
