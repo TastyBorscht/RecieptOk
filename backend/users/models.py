@@ -1,15 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from drf_extra_fields.fields import Base64ImageField
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from .constants import (
     LENGTH_CHARFIELDS, LENGTH_EMAIL, USER_ROLES, LENGTH_PASSWORD, LENGTH_ROLES,
     UNIQUE_USERNAME, UNIQUE_EMAIL, USER, ADMIN
 )
-from .utils import (
-    code_random, validate_username
-)
+from .utils import validate_username
 
 
 class ApiUser(AbstractUser):
@@ -41,11 +37,12 @@ class ApiUser(AbstractUser):
         default=USER, choices=USER_ROLES
     )
 
-    avatar = models.ImageField(upload_to='user/avatars/', null=True, blank=True)
+    avatar = models.ImageField(
+        upload_to='user/avatars/', null=True, blank=True
+    )
     password = models.CharField(
         'пароль', max_length=LENGTH_PASSWORD, blank=True
     )
-
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -78,6 +75,7 @@ class ApiUser(AbstractUser):
             return True
         return False
 
+
 class Subscription(models.Model):
     """Класс для подписки на авторов контента."""
 
@@ -107,35 +105,3 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f'{self.subscriber} подписан на: {self.author}'
-# class Follow(models.Model):
-#     """
-#     Подписки на авторов рецептов.
-#     Ограничения уникальности полей:
-#       author, user.
-#     """
-#     user = models.ForeignKey(
-#         User,
-#         verbose_name='Пользователь',
-#         related_name='follower',
-#         on_delete=models.CASCADE,
-#         help_text='Текущий пользователь')
-#     author = models.ForeignKey(
-#         User,
-#         verbose_name='Подписка',
-#         related_name='followed',
-#         on_delete=models.CASCADE,
-#         help_text='Подписаться на автора рецепта(ов)')
-#
-#     class Meta:
-#         verbose_name = 'Мои подписки'
-#         verbose_name_plural = 'Мои подписки'
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=['user', 'author'],
-#                 name='unique_following'),
-#             models.CheckConstraint(
-#                 check=~Q(user=F('author')),
-#                 name='no_self_following')]
-#
-#     def __str__(self):
-#         return f'Пользователь {self.user} подписан на {self.author}'

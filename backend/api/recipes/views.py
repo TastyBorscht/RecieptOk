@@ -3,7 +3,8 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import AllowAny, \
+    IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -14,7 +15,8 @@ from api.recipes.serializers import RecipesListSerializer, RecipeSerializer, \
     RecipeShortSerializer, ShoppingCartSerializer, FavoriteSerializer
 from api.recipes.utils import create_shopping_cart
 from api.tags.serializers import TagSerializer
-from recipes.models import Tag, Recipe, IngredientInRecipe, ShoppingCart, Favorite
+from recipes.models import Tag, Recipe, IngredientInRecipe, \
+    ShoppingCart, Favorite
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -40,9 +42,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
-
     def destroy(self, request, *args, **kwargs):
-        """Удаляет рецепт, если автором является авторизованный пользователь."""
+        """Удаляет рецепт, если автором является
+        авторизованный пользователь."""
         recipe = self.get_object()
         if recipe.author != request.user:
             return Response(
@@ -74,10 +76,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
             Favorite.objects.get(user=request.user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        # favorite_recipe = get_object_or_404(
-        #     Favorite, user=request.user, recipe=recipe
-        # )
-        # favorite_recipe.delete()
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
@@ -101,13 +99,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(
                 shopping_cart_serializer.data, status=status.HTTP_201_CREATED
             )
-        if ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists():
+        if ShoppingCart.objects.filter(
+                user=request.user, recipe=recipe).exists():
             ShoppingCart.objects.get(user=request.user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        # shopping_cart_recipe = get_object_or_404(
-        #     ShoppingCart, user=request.user, recipe=recipe
-        # )
-        # shopping_cart_recipe.delete()
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
@@ -148,9 +143,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk):
         """Возвращает короткую ссылку на рецепт."""
         recipe = get_object_or_404(Recipe, pk=pk)
-        long_url = request.build_absolute_uri(reverse('recipe-detail', args=[recipe.id]))
+        long_url = request.build_absolute_uri(reverse(
+            'recipe-detail', args=[recipe.id]
+        ))
         s = pyshorteners.Shortener()
         short_link = s.tinyurl.short(long_url)
-
         return Response({'short-link': short_link}, status=status.HTTP_200_OK)
-

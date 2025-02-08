@@ -6,6 +6,7 @@ from . import constants
 
 User = get_user_model()
 
+
 class Tag(models.Model):
     """Модель для описания тегов."""
 
@@ -31,7 +32,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class Ingredient(models.Model):

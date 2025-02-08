@@ -1,15 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.models import Subscription
-from .serializers import User, UsersListSerializer, UserCreateSerializer, AvatarSerializer, ChangePasswordSerializer,\
-    SubscribeSerializer
-from ..recipes.permissions import AnonimOrAuthenticatedReadOnly
+from .serializers import User, UsersListSerializer, UserCreateSerializer, \
+    AvatarSerializer, ChangePasswordSerializer, SubscribeSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -76,7 +74,9 @@ class UserViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_201_CREATED)
             return Response({'errors': 'Объект не найден'},
                             status=status.HTTP_404_NOT_FOUND)
-        if Subscription.objects.filter(author=author, subscriber=user).exists():
+        if Subscription.objects.filter(
+                author=author, subscriber=user
+        ).exists():
             Subscription.objects.get(author=author).delete()
             return Response('Успешная отписка',
                             status=status.HTTP_204_NO_CONTENT)
@@ -89,9 +89,11 @@ class UserViewSet(viewsets.ModelViewSet):
         """Отображает все подписки пользователя."""
         follows = Subscription.objects.filter(subscriber=self.request.user)
         pages = self.paginate_queryset(follows)
-        serializer = SubscribeSerializer(pages,
-                                      many=True,
-                                      context={'request': request})
+        serializer = SubscribeSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
         return self.get_paginated_response(serializer.data)
 
 
@@ -99,17 +101,18 @@ class LegendAvatarView(APIView):
     """Вью-класс управляющий Аватаром."""
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
+
     def put(self, request):
         user = request.user
         if 'avatar' not in request.data:
             return Response(
-                {"detail": "Field 'avatar' is required."}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "Field 'avatar' is required."},
+                status=status.HTTP_400_BAD_REQUEST
             )
         serializer = AvatarSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
@@ -119,21 +122,21 @@ class LegendAvatarView(APIView):
             user.avatar = None
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 class UpdatePasswordView(APIView):
-    """
-    An endpoint for changing password.
-    """
+    """ApiView для смены пароля."""
     permission_classes = (IsAuthenticated, )
+
     def get_object(self, queryset=None):
         return self.request.user
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = ChangePasswordSerializer(data=request.data)
-
         if serializer.is_valid():
             current_password = serializer.data.get("current_password")
             if not self.object.check_password(current_password):
@@ -142,5 +145,4 @@ class UpdatePasswordView(APIView):
             self.object.set_password(serializer.data.get("new_password"))
             self.object.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

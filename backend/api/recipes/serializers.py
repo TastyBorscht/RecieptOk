@@ -1,13 +1,12 @@
-from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.ingredients.serializers import IngredientFullSerializer, IngredientAmountSerializer
+from api.ingredients.serializers import IngredientFullSerializer, \
+    IngredientAmountSerializer
 from api.tags.serializers import TagSerializer
 from api.users.serializers import UsersListSerializer, UserRecipieSerializer
-from recipes.models import Tag, Recipe, IngredientInRecipe, Ingredient, Favorite, ShoppingCart
-
+from recipes.models import Recipe, IngredientInRecipe, Favorite, ShoppingCart
 
 
 class RecipesListSerializer(serializers.ModelSerializer):

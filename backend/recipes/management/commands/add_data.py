@@ -2,7 +2,8 @@ import json
 from django.core.management.base import BaseCommand
 
 from api.users.serializers import User
-from recipes.models import Tag, Ingredient  # Убедитесь, что импортируете свои модели
+from recipes.models import Tag, Ingredient
+
 
 class Command(BaseCommand):
     help = 'Load data from recipe.json and tags.json'
@@ -25,7 +26,8 @@ class Command(BaseCommand):
                     name=ingredient['name'],
                     measurement_unit=ingredient['measurement_unit']
                 )
-        self.stdout.write(self.style.SUCCESS('Successfully loaded ingredients'))
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully loaded ingredients'))
 
         with open('data/users.json') as f:
             users_data = json.load(f)
