@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.validators import UniqueTogetherValidator
@@ -13,6 +13,7 @@ from users.constants import (
 )
 from . import constants
 
+# from ..recipes.serializers import RecipeMiniSerializer
 
 User = get_user_model()
 
@@ -110,6 +111,14 @@ class ChangePasswordSerializer(serializers.Serializer):
         validate_password(value)
         return value
 
+
+class SubscribeRecipeMiniSerializer(serializers.ModelSerializer):
+    """Сериализатор предназначен для вывода рецептом в FollowSerializer."""
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time', 'image',)
+
+
 class UserRecipieSerializer(serializers.ModelSerializer):
     """Сериализатор для отображения полей ApiUser при создании рецепта."""
 
@@ -123,7 +132,7 @@ class UserRecipieSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'is_subscribed'
+            'is_subscriber'
         )
 
     def validate(self, data):
@@ -141,66 +150,118 @@ class UserRecipieSerializer(serializers.ModelSerializer):
         return object.author.filter(subscriber=request.user).exists()
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Subscription."""
+# class SubscriptionSerializer(serializers.ModelSerializer):
+#     """Сериализатор для модели Subscription."""
+#
+#     class Meta:
+#         model = Subscription
+#         fields = '__all__'
+#         validators = [
+#             UniqueTogetherValidator(
+#                 queryset=Subscription.objects.all(),
+#                 fields=('author', 'subscriber'),
+#                 message='Вы уже подписывались на этого автора'
+#             )
+#         ]
+#
+#     def validate(self, data):
+#         """Проверяем, что пользователь не подписывается на самого себя."""
+#         if data['subscriber'] == data['author']:
+#             raise serializers.ValidationError(
+#                 'Подписка на cамого себя не имеет смысла'
+#             )
+#         return data
+#
+#
+# class SubscriptionRecipeShortSerializer(serializers.ModelSerializer):
+#     """Сериализатор для отображения рецептов в подписке."""
+#
+#     class Meta:
+#         model = Recipe
+#         fields = (
+#             'id',
+#             'name',
+#             'image',
+#             'cooking_time'
+#         )
+#
+#
+# class SubscriptionShowSerializer(serializers.ModelSerializer):
+#     """Сериализатор отображения подписок."""
+#
+#     recipes = serializers.SerializerMethodField()
+#     recipes_count = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = User
+#         fields = (
+#             'email',
+#             'id',
+#             'username',
+#             'first_name',
+#             'last_name',
+#             'is_subscribed',
+#             'recipes',
+#             'recipes_count'
+#         )
+#
+#     def get_recipes(self, object):
+#         author_recipes = object.recipes.all()[:constants.RECIPES_MAX]
+#         return SubscriptionRecipeShortSerializer(
+#             author_recipes, many=True
+#         ).data
+#
+#     def get_recipes_count(self, object):
+#         return object.recipes.count()
 
-    class Meta:
-        model = Subscription
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Subscription.objects.all(),
-                fields=('author', 'subscriber'),
-                message='Вы уже подписывались на этого автора'
-            )
-        ]
-
-    def validate(self, data):
-        """Проверяем, что пользователь не подписывается на самого себя."""
-        if data['subscriber'] == data['author']:
-            raise serializers.ValidationError(
-                'Подписка на cамого себя не имеет смысла'
-            )
-        return data
-
-
-class SubscriptionRecipeShortSerializer(serializers.ModelSerializer):
-    """Сериализатор для отображения рецептов в подписке."""
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time'
-        )
-
-
-class SubscriptionShowSerializer(serializers.ModelSerializer):
-    """Сериализатор отображения подписок."""
-
+class SubscribeSerializer(serializers.ModelSerializer):
+    """Serializer для модели Follow."""
+    email = serializers.ReadOnlyField(source='author.email')
+    id = serializers.ReadOnlyField(source='author.id')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count'
-        )
+        model = Subscription
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
 
-    def get_recipes(self, object):
-        author_recipes = object.recipes.all()[:constants.RECIPES_MAX]
-        return SubscriptionRecipeShortSerializer(
-            author_recipes, many=True
-        ).data
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if not user.is_anonymous:
+            return (Subscription.objects.filter(
+                subscriber=obj.subscriber,
+                author=obj.author
+            ).exists())
+        return False
 
-    def get_recipes_count(self, object):
-        return object.recipes.count()
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        recipes = Recipe.objects.filter(author=obj.author)
+        if limit and limit.isdigit():
+            recipes = recipes[:int(limit)]
+        return SubscribeRecipeMiniSerializer(recipes, many=True).data
+
+    def get_recipes_count(self, obj):
+        return Recipe.objects.filter(author=obj.author).count()
+
+    def validate(self, data):
+        author = self.context.get('author')
+        user = self.context.get('request').user
+        if Subscription.objects.filter(
+                author=author,
+                subscriber=user
+        ).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны на этого пользователя!',
+                code=status.HTTP_400_BAD_REQUEST)
+        if user == author:
+            raise ValidationError(
+                detail='Невозможно подписаться на себя!',
+                code=status.HTTP_400_BAD_REQUEST)
+        return data

@@ -107,3 +107,35 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f'{self.subscriber} подписан на: {self.author}'
+# class Follow(models.Model):
+#     """
+#     Подписки на авторов рецептов.
+#     Ограничения уникальности полей:
+#       author, user.
+#     """
+#     user = models.ForeignKey(
+#         User,
+#         verbose_name='Пользователь',
+#         related_name='follower',
+#         on_delete=models.CASCADE,
+#         help_text='Текущий пользователь')
+#     author = models.ForeignKey(
+#         User,
+#         verbose_name='Подписка',
+#         related_name='followed',
+#         on_delete=models.CASCADE,
+#         help_text='Подписаться на автора рецепта(ов)')
+#
+#     class Meta:
+#         verbose_name = 'Мои подписки'
+#         verbose_name_plural = 'Мои подписки'
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=['user', 'author'],
+#                 name='unique_following'),
+#             models.CheckConstraint(
+#                 check=~Q(user=F('author')),
+#                 name='no_self_following')]
+#
+#     def __str__(self):
+#         return f'Пользователь {self.user} подписан на {self.author}'

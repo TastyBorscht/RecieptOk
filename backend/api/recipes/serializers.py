@@ -142,6 +142,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     # @transaction.atomic
     def update(self, instance, validated_data):
+        if 'ingredients' not in validated_data or 'tags' not in validated_data:
+            raise serializers.ValidationError(
+                'Необходимо предоставить поля ingredients и tags.'
+            )
         recipe = instance
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
