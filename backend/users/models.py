@@ -1,9 +1,17 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from .constants import (ADMIN, LENGTH_CHARFIELDS, LENGTH_EMAIL,
-                        LENGTH_PASSWORD, LENGTH_ROLES, UNIQUE_EMAIL,
-                        UNIQUE_USERNAME, USER, USER_ROLES)
+from .constants import (
+    ADMIN,
+    LENGTH_CHARFIELDS,
+    LENGTH_EMAIL,
+    LENGTH_PASSWORD,
+    LENGTH_ROLES,
+    UNIQUE_EMAIL,
+    UNIQUE_USERNAME,
+    USER,
+    USER_ROLES
+)
 from .utils import validate_username
 
 

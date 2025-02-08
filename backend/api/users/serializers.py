@@ -1,12 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import Recipe
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
-
-from recipes.models import Recipe
-from users.constants import (LENGTH_CHARFIELDS, LENGTH_EMAIL, UNIQUE_EMAIL,
-                             UNIQUE_USERNAME)
+from users.constants import (
+    LENGTH_CHARFIELDS,
+    LENGTH_EMAIL,
+    UNIQUE_EMAIL,
+    UNIQUE_USERNAME
+)
 from users.models import Subscription
 from users.utils import validate_username
 

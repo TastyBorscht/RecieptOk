@@ -1,12 +1,13 @@
-from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
-from api.ingredients.serializers import (IngredientAmountSerializer,
-                                         IngredientFullSerializer)
+from api.ingredients.serializers import (
+    IngredientAmountSerializer,
+    IngredientFullSerializer
+)
 from api.tags.serializers import TagSerializer
 from api.users.serializers import UserRecipieSerializer, UsersListSerializer
+from drf_extra_fields.fields import Base64ImageField
 from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class RecipesListSerializer(serializers.ModelSerializer):

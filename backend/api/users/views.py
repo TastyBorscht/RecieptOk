@@ -4,12 +4,16 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from users.models import Subscription
 
-from .serializers import (AvatarSerializer, ChangePasswordSerializer,
-                          SubscribeSerializer, User, UserCreateSerializer,
-                          UsersListSerializer)
+from .serializers import (
+    AvatarSerializer,
+    ChangePasswordSerializer,
+    SubscribeSerializer,
+    User,
+    UserCreateSerializer,
+    UsersListSerializer
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
