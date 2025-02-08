@@ -1,7 +1,7 @@
 import json
 
 from django.core.management.base import BaseCommand
-from recipes.models import Ingredient, Tag
+from recipes.models import Tag
 
 
 class Command(BaseCommand):
@@ -18,12 +18,3 @@ class Command(BaseCommand):
                 )
         self.stdout.write(self.style.SUCCESS('Successfully loaded tags'))
 
-        with open('data/ingredients.json') as f:
-            recipes_data = json.load(f)
-            for ingredient in recipes_data:
-                Ingredient.objects.get_or_create(
-                    name=ingredient['name'],
-                    measurement_unit=ingredient['measurement_unit']
-                )
-        self.stdout.write(self.style.SUCCESS(
-            'Successfully loaded ingredients'))
