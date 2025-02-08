@@ -9,4 +9,4 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
-    http_method_names = ['get',]
+    http_method_names = ['get']
