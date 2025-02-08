@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import UserViewSet, UpdatePasswordView, LegendAvatarView
+from .views import LegendAvatarView, UpdatePasswordView, UserViewSet
 
 user_router = routers.DefaultRouter()
 user_router.register('', UserViewSet)

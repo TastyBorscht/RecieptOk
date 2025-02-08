@@ -7,12 +7,9 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', default='default_secret_key')
-SECRET_KEY = 'eth!wz*$d&ux0*r7d$v15myk2dnr6&5su$ow_p69!1g*spy0*j'
-# DEBUG = os.getenv('DJANGO_DEBUG')
-DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-# ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', default='default_secret_key')
+DEBUG = os.getenv('DJANGO_DEBUG')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
 
 
 INSTALLED_APPS = [

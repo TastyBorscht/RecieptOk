@@ -2,21 +2,23 @@ import pyshorteners
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, permissions, status
-from rest_framework.permissions import AllowAny, \
-    IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from api.recipes.filters import RecipeFilter
 from api.recipes.permissions import AuthorOrReadOnly
-from api.recipes.serializers import RecipesListSerializer, RecipeSerializer, \
-    RecipeShortSerializer, ShoppingCartSerializer, FavoriteSerializer
+from api.recipes.serializers import (FavoriteSerializer, RecipeSerializer,
+                                     RecipeShortSerializer,
+                                     RecipesListSerializer,
+                                     ShoppingCartSerializer)
 from api.recipes.utils import create_shopping_cart
 from api.tags.serializers import TagSerializer
-from recipes.models import Tag, Recipe, IngredientInRecipe, \
-    ShoppingCart, Favorite
+from recipes.models import (Favorite, IngredientInRecipe, Recipe, ShoppingCart,
+                            Tag)
 
 
 class TagViewSet(viewsets.ModelViewSet):

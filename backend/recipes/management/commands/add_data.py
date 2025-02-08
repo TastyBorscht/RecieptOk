@@ -1,8 +1,9 @@
 import json
+
 from django.core.management.base import BaseCommand
 
 from api.users.serializers import User
-from recipes.models import Tag, Ingredient
+from recipes.models import Ingredient, Tag
 
 
 class Command(BaseCommand):

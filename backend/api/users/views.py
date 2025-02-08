@@ -1,13 +1,15 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.models import Subscription
-from .serializers import User, UsersListSerializer, UserCreateSerializer, \
-    AvatarSerializer, ChangePasswordSerializer, SubscribeSerializer
+
+from .serializers import (AvatarSerializer, ChangePasswordSerializer,
+                          SubscribeSerializer, User, UserCreateSerializer,
+                          UsersListSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
