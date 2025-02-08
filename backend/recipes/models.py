@@ -40,12 +40,12 @@ class Ingredient(models.Model):
     """
 
     name = models.CharField(
-        max_length=constants.NAME_MAX_LENGH,
+        max_length=150,
         db_index=True,
         verbose_name='Название ингредиента')
 
     measurement_unit = models.CharField(
-        max_length=constants.NAME_MAX_LENGH,
+        max_length=150,
         verbose_name='Единицы измерения')
 
     class Meta:
