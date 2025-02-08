@@ -17,4 +17,3 @@ class Command(BaseCommand):
                     slug=tag['slug']
                 )
         self.stdout.write(self.style.SUCCESS('Successfully loaded tags'))
-
