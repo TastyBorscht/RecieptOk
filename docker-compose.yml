@@ -35,4 +35,4 @@ services:
       - static:/static/
       - media:/var/www/foodgram/media/
     ports:
-      - 8080:80
+      - 8090:80
