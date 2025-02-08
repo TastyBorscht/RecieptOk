@@ -29,15 +29,15 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             'Successfully loaded ingredients'))
 
-        with open('data/users.json') as f:
-            users_data = json.load(f)
-            for user_ in users_data:
-                User.objects.get_or_create(
-                    username=user_['username'],
-                    email=user_['email'],
-                    first_name=user_['first_name'],
-                    last_name=user_['last_name'],
-                    role=user_['role'],
-                    password=user_['password'],
-                )
-        self.stdout.write(self.style.SUCCESS('Successfully loaded users'))
+        # with open('data/users.json') as f:
+        #     users_data = json.load(f)
+        #     for user_ in users_data:
+        #         User.objects.get_or_create(
+        #             username=user_['username'],
+        #             email=user_['email'],
+        #             first_name=user_['first_name'],
+        #             last_name=user_['last_name'],
+        #             role=user_['role'],
+        #             password=user_['password'],
+        #         )
+        # self.stdout.write(self.style.SUCCESS('Successfully loaded users'))
