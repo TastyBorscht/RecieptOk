@@ -78,39 +78,51 @@ class CustomUserViewSet(UserViewSet):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # @action(detail=False,
-    #         methods=['put'],
-    #         permission_classes=[IsAuthenticated],
-    #         url_path='me/avatar')
-    # def update_avatar(self, request):
-    #     """Обновление аватара пользователя."""
-    #     user = request.user
-    #     if 'avatar' not in request.data:
-    #         return Response(
-    #             {"detail": "Field 'avatar' is required."},
-    #             status=status.HTTP_400_BAD_REQUEST
-    #         )
-    #     serializer = AvatarSerializer(user, data=request.data, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors,
-    #     status=status.HTTP_400_BAD_REQUEST)
-    #
-    # @action(detail=False,
-    #         methods=['delete'],
-    #         permission_classes=[IsAuthenticated],
-    #         url_path='me/avatar')
-    # def delete_avatar(self, request):
-    #     user = request.user
-    #     if user.avatar:
-    #         user.avatar.delete()
-    #         user.avatar = None
-    #         user.save()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-    #     return Response(
-    #         {"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND
-    #     )
+    @action(
+        methods=['put'],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        url_path='me/avatar',
+        url_name='me-avatar',
+    )
+    def avatar(self, request):
+        """Добавление или удаление аватара"""
+        serializer = self._change_avatar(request.data)
+        return Response(serializer.data)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request):
+        user = request.user
+        if user.avatar:
+            user.avatar.delete()
+            user.avatar = None
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    def _change_avatar(self, data):
+        instance = self.get_instance()
+        serializer = AvatarSerializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer
+
+    @action(detail=False,
+            methods=['delete'],
+            permission_classes=[IsAuthenticated],
+            url_path='me/avatar')
+    def delete_avatar(self, request):
+        user = request.user
+        if user.avatar:
+            user.avatar.delete()
+            user.avatar = None
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
 #  При попытке уйти от отдельного Вью для аватара я
 #  неизбежно получаю ошибку Method \PUT\   not allowed либо 500,

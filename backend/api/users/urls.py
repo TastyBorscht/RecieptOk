@@ -7,6 +7,6 @@ user_router = routers.DefaultRouter()
 user_router.register('', CustomUserViewSet, basename='users')
 
 urlpatterns = [
-    path('me/avatar/', LegendAvatarView.as_view(), name='avatar'),
+    # path('me/avatar/', LegendAvatarView.as_view(), name='avatar'),
     path('', include(user_router.urls)),
 ]
