@@ -1,20 +1,20 @@
-from api.ingredients.serializers import (
-    IngredientAmountSerializer,
-    IngredientFullSerializer
-)
-from api.tags.serializers import TagSerializer
-from api.users.serializers import UserRecipieSerializer, UsersListSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from api.ingredients.serializers import (IngredientAmountSerializer,
+                                         IngredientFullSerializer)
+from api.tags.serializers import TagSerializer
+from api.users.serializers import UserRecipieSerializer, CustomUserSerializer
+from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
+from .constants import MAX_INGREDIENTS_IN_RECIPE, MIN_INGREDIENTS_IN_RECIPE
 
 
 class RecipesListSerializer(serializers.ModelSerializer):
     """Сериализатор объектов класса Recipe при GET запросах."""
 
     tags = TagSerializer(many=True, read_only=True)
-    author = UsersListSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
@@ -92,11 +92,11 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'Ингредиенты рецепта должны быть уникальными'
             )
         for ingredient in ingredients:
-            if int(ingredient.get('amount')) < 1:
+            if int(ingredient.get('amount')) < MIN_INGREDIENTS_IN_RECIPE:
                 raise serializers.ValidationError(
                     'Количество ингредиента не может быть меньше 1'
                 )
-            if int(ingredient.get('amount')) > 100:
+            if int(ingredient.get('amount')) > MAX_INGREDIENTS_IN_RECIPE:
                 raise serializers.ValidationError(
                     'Количество ингредиента не может быть больше 100'
                 )
@@ -146,20 +146,20 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Необходимо предоставить поля ingredients и tags.'
             )
-        recipe = instance
+
+        tags_data = validated_data.get('tags')
+        ingredients_data = validated_data.get('ingredients')
+
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
-        instance.text = validated_data.get('text', instance.name)
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
-        instance.tags.clear()
-        instance.ingredients.clear()
-        tags_data = validated_data.get('tags')
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
+
         instance.tags.set(tags_data)
-        ingredients_data = validated_data.get('ingredients')
-        IngredientInRecipe.objects.filter(recipe=recipe).delete()
-        self.add_ingredients(ingredients_data, recipe)
+
+        IngredientInRecipe.objects.filter(recipe=instance).delete()
+        self.add_ingredients(ingredients_data, instance)
+
         instance.save()
         return instance
 

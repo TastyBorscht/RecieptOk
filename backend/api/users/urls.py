@@ -1,14 +1,12 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import LegendAvatarView, UpdatePasswordView, UserViewSet
+from .views import CustomUserViewSet, LegendAvatarView
 
 user_router = routers.DefaultRouter()
-user_router.register('', UserViewSet)
+user_router.register('', CustomUserViewSet, basename='users')
 
 urlpatterns = [
     path('me/avatar/', LegendAvatarView.as_view(), name='avatar'),
-    path('me/', UserViewSet.as_view({'get': 'get_me'}), name='user-me'),
-    path('set_password/', UpdatePasswordView.as_view(), name='set_password'),
     path('', include(user_router.urls)),
 ]

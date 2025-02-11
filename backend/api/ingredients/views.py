@@ -1,9 +1,9 @@
-from api.ingredients.serializers import IngredientSerializer
-from api.recipes.filters import IngredientSearchFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import Ingredient
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
+
+from api.ingredients.serializers import IngredientSerializer
+from api.recipes.filters import IngredientSearchFilter
+from recipes.models import Ingredient
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -13,6 +13,5 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
-    filter_backends = (DjangoFilterBackend, )
-    filterset_class = IngredientSearchFilter
-    search_fields = ('^name', )
+    filter_backends = (IngredientSearchFilter,)
+    search_fields = ['^name']

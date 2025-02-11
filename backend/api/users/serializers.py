@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from djoser.serializers import UserSerializer, UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework.response import Response
+
 from recipes.models import Recipe
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
@@ -11,88 +14,136 @@ from users.constants import (
     UNIQUE_USERNAME
 )
 from users.models import Subscription
-from users.utils import validate_username
 
 User = get_user_model()
 
 
-class UsersListSerializer(serializers.ModelSerializer):
-    """Сериализатор для выдачи всех пользователей всем
-    по api/users."""
-    avatar = Base64ImageField()
-    is_subscribed = serializers.SerializerMethodField()
+# class CustomUserCreateSerializer(UserCreateSerializer):
+#     """Сериализатор для создания объекта класса User."""
+#
+#     avatar = Base64ImageField()
+#
+#     class Meta:
+#         model = User
+#         fields = (
+#             'email',
+#             'id',
+#             'username',
+#             'first_name',
+#             'last_name',
+#             'password',
+#             'avatar',
+#         )
+#         extra_kwargs = {"password": {"write_only": True}}
+#
+#     def validate(self, data):
+#         """Запрещает пользователям присваивать себе username me
+#         и использовать повторные username и email."""
+#         if data.get('username') == 'me':
+#             raise serializers.ValidationError(
+#                 'Использовать имя me запрещено'
+#             )
+#         if User.objects.filter(username=data.get('username')):
+#             raise serializers.ValidationError(
+#                 'Пользователь с таким username уже существует'
+#             )
+#         if User.objects.filter(email=data.get('email')):
+#             raise serializers.ValidationError(
+#                 'Пользователь с таким email уже существует'
+#             )
+#         return data
+#
+#     def create(self, validated_data):
+#         """Создаёт пользователя с учётом поля avatar."""
+#         avatar = validated_data.pop('avatar', None)  # Извлекаем avatar из данных
+#         user = super().create(validated_data)  # Создаём пользователя
+#         if avatar:
+#             user.avatar = avatar  # Присваиваем avatar, если он был передан
+#             user.save()
+#         return user
+
+class CustomUserCreateSerializer(UserCreateSerializer):
+    """Сериализатор для создания объекта класса User."""
 
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username',
-            'first_name', 'last_name',
-            'is_subscribed', 'avatar'
-        )
-        read_only_fields = fields
-
-    def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return Subscription.objects.filter(
-                subscriber=request.user, author=obj
-            ).exists()
-        return False
-
-
-class UserCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления нового пользователя
-    по POST-запросу на api/users ."""
-    username = serializers.CharField(
-        max_length=LENGTH_CHARFIELDS,
-        validators=[validate_username]
-    )
-    password = serializers.CharField(write_only=True, required=True)
-    email = serializers.EmailField(max_length=LENGTH_EMAIL, required=True)
-    first_name = serializers.CharField(
-        write_only=True,
-        required=True,
-        max_length=150,
-    )
-    last_name = serializers.CharField(
-        write_only=True,
-        required=True,
-        max_length=150,
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            'email', 'username',
-            'first_name', 'last_name',
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
             'password',
+        )
+        extra_kwargs = {
+            "password": {"write_only": True},
+            "id": {"read_only": True},
+        }
+
+    def validate(self, data):
+        """Запрещает пользователям присваивать себе username me
+        и использовать повторные username и email.
+        Также проверяет наличие полей first_name и last_name."""
+
+        if 'first_name' not in data or not data['first_name']:
+            raise serializers.ValidationError(
+                {"first_name": "Это поле обязательно."}
+            )
+
+        if 'last_name' not in data or not data['last_name']:
+            raise serializers.ValidationError(
+                {"last_name": "Это поле обязательно."}
+            )
+
+        if data.get('username') == 'me':
+            raise serializers.ValidationError(
+                {"username": "Использовать имя me запрещено"}
+            )
+
+        if User.objects.filter(username=data.get('username')).exists():
+            raise serializers.ValidationError(
+                {"username": "Пользователь с таким username уже существует"}
+            )
+
+        if User.objects.filter(email=data.get('email')).exists():
+            raise serializers.ValidationError(
+                {"email": "Пользователь с таким email уже существует"}
+            )
+
+        return data
+
+
+class CustomUserSerializer(UserSerializer):
+    """Сериализатор для модели User."""
+
+    avatar = Base64ImageField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'avatar'
         )
 
     def validate(self, data):
-        username = data.get('username')
-        email = data.get('email')
-        user = User.objects.filter(
-            username=username,
-            email=email,
-        )
+        """Запрещает пользователям изменять себе username на me."""
         if data.get('username') == 'me':
             raise serializers.ValidationError(
                 'Использовать имя me запрещено'
             )
-        if user.exists():
-            return data
-        if User.objects.filter(username=username).exists():
-            raise ValidationError(UNIQUE_USERNAME)
-        if User.objects.filter(email=email).exists():
-            raise ValidationError(UNIQUE_EMAIL)
 
-        return data
-
-    def create(self, validated_data):
-        user = super().create(validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+    def get_is_subscribed(self, object):
+        """Проверяет, подписан ли текущий пользователь на автора аккаунта."""
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return object.author.filter(subscriber=request.user).exists()
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -101,15 +152,6 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar',)
-
-
-class ChangePasswordSerializer(serializers.Serializer):
-    current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-    def validate_new_password(self, value):
-        validate_password(value)
-        return value
 
 
 class SubscribeRecipeMiniSerializer(serializers.ModelSerializer):
@@ -151,7 +193,7 @@ class UserRecipieSerializer(serializers.ModelSerializer):
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
-    """Serializer для модели Follow."""
+    """Serializer для модели Subscription."""
     email = serializers.ReadOnlyField(source='author.email')
     id = serializers.ReadOnlyField(source='author.id')
     username = serializers.ReadOnlyField(source='author.username')
@@ -189,22 +231,35 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return Recipe.objects.filter(author=obj.author).count()
 
     def get_avatar(self, obj):
-        if obj.author.avatar:  # Check if avatar exists
-            return obj.author.avatar.url  # Return the URL if available
+        if obj.author.avatar:
+            return obj.author.avatar.url
         return None
 
     def validate(self, data):
         author = self.context.get('author')
         user = self.context.get('request').user
-        if Subscription.objects.filter(
-                author=author,
-                subscriber=user
-        ).exists():
-            raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST)
-        if user == author:
-            raise ValidationError(
-                detail='Невозможно подписаться на себя!',
-                code=status.HTTP_400_BAD_REQUEST)
+        request_method = self.context.get('request').method
+
+        # Проверка на существующую подписку для POST-запроса
+        if request_method == 'POST':
+            if Subscription.objects.filter(author=author, subscriber=user).exists():
+                raise ValidationError(
+                    detail='Вы уже подписаны на этого пользователя!',
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+            if user == author:
+                raise ValidationError(
+                    detail='Невозможно подписаться на себя!',
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+
+        if request_method == 'DELETE':
+            if not Subscription.objects.filter(author=author, subscriber=user).exists():
+                raise ValidationError(
+                    detail='Вы не подписаны на этого пользователя!',
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+
         return data
+
+

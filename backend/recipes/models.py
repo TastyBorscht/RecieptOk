@@ -20,16 +20,6 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Уникальный слаг')
 
-    class Meta:
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
-        constraints = (
-            models.UniqueConstraint(
-                fields=('name', 'slug'),
-                name='unique_tags',
-            ),
-        )
-
     def __str__(self):
         return self.name
 
@@ -80,12 +70,6 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name='Описание рецепта'
     )
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        through='IngredientInRecipe',
-        related_name='recipes',
-        verbose_name='Ингредиенты'
-    )
     tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
@@ -120,7 +104,7 @@ class IngredientInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredient_list',
+        related_name='ingredients',
         verbose_name='Рецепт',
     )
     ingredient = models.ForeignKey(
@@ -152,36 +136,28 @@ class IngredientInRecipe(models.Model):
         return f'{self.ingredient} {self.recipe}'
 
 
-class TagInRecipe(models.Model):
-    """Создание модели тегов рецепта."""
-
-    tag = models.ForeignKey(
-        Tag,
+class BaseRecipeRelatedModel(models.Model):
+    """Базовая модель для связанных с рецептом объектов."""
+    user = models.ForeignKey(
+        User,
         on_delete=models.CASCADE,
-        verbose_name='Теги',
-        help_text='Выберите теги рецепта'
+        verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
-        Recipe,
+        'Recipe',
         on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-        help_text='Выберите рецепт')
+        verbose_name='Рецепт'
+    )
 
     class Meta:
-        verbose_name = 'Тег рецепта'
-        verbose_name_plural = 'Теги рецепта'
-        constraints = [
-            models.UniqueConstraint(fields=['tag', 'recipe'],
-                                    name='unique_tagrecipe')
-        ]
+        abstract = True
 
     def __str__(self):
         """Метод строкового представления модели."""
 
-        return f'{self.tag} {self.recipe}'
+        return f'{self.user} {self.recipe}'
 
-
-class ShoppingCart(models.Model):
+class ShoppingCart(BaseRecipeRelatedModel):
     """Модель для описания формирования покупок """
     user = models.ForeignKey(
         User,
@@ -205,44 +181,8 @@ class ShoppingCart(models.Model):
             )
         ]
 
-    def __str__(self):
-        return f'{self.user} {self.recipe}'
 
-
-class Follow(models.Model):
-    """ Модель для создания подписок на автора"""
-
-    author = models.ForeignKey(
-        User,
-        related_name='follow',
-        on_delete=models.CASCADE,
-        verbose_name='Автор рецепта',
-    )
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='follower',
-        verbose_name='Подписчик'
-    )
-
-    class Meta:
-        """Мета-параметры модели"""
-
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'author'], name='unique_follow'
-            )
-        ]
-
-    def __str__(self):
-        """Метод строкового представления модели."""
-
-        return f'{self.user} {self.author}'
-
-
-class Favorite(models.Model):
+class Favorite(BaseRecipeRelatedModel):
     """Модель для создания избранного."""
 
     user = models.ForeignKey(
@@ -268,8 +208,3 @@ class Favorite(models.Model):
                 fields=['user', 'recipe'], name='unique_favorite'
             )
         ]
-
-    def __str__(self):
-        """Метод строкового представления модели."""
-
-        return f'{self.user} {self.recipe}'

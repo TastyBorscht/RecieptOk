@@ -1,10 +1,12 @@
 from django_filters import rest_framework as filters
+from rest_framework import filters as drf_filters
+
 from recipes.models import Ingredient, Recipe
 
 
-class IngredientSearchFilter(filters.FilterSet):
+class IngredientSearchFilter(drf_filters.SearchFilter):
     """Фильтр поиска по названию ингредиента."""
-    name = filters.CharFilter(lookup_expr='istartswith')
+    search_param = 'name'
 
     class Meta:
         model = Ingredient

@@ -1,6 +1,7 @@
-from api.recipes.views import RecipeViewSet
 from django.urls import include, path
 from rest_framework import routers
+
+from api.recipes.views import RecipeViewSet
 
 recipes_router = routers.DefaultRouter()
 recipes_router.register('', RecipeViewSet)

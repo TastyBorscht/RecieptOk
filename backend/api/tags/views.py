@@ -1,12 +1,13 @@
 from api.tags.serializers import TagSerializer
-from recipes.models import Tag
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
+from recipes.models import Tag
 
-class TagViewSet(viewsets.ModelViewSet):
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet для работы с моделью Tag. """
     pagination_class = None
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
-    http_method_names = ['get']

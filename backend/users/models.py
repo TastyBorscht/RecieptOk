@@ -1,26 +1,24 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 
 from .constants import (
-    ADMIN,
     LENGTH_CHARFIELDS,
     LENGTH_EMAIL,
-    LENGTH_PASSWORD,
-    LENGTH_ROLES,
     UNIQUE_EMAIL,
     UNIQUE_USERNAME,
-    USER,
-    USER_ROLES
 )
-from .utils import validate_username
 
 
 class ApiUser(AbstractUser):
     username = models.CharField(
         'имя пользователя',
         max_length=LENGTH_CHARFIELDS,
+        validators=[
+            RegexValidator(
+                regex=r'^[\w.@+-]+\Z')
+            ],
         unique=True,
-        validators=[validate_username],
         error_messages={
             'unique': (UNIQUE_USERNAME)
         }
@@ -33,22 +31,21 @@ class ApiUser(AbstractUser):
         }
     )
     first_name = models.CharField(
-        'имя', max_length=LENGTH_CHARFIELDS, blank=True
+        'имя', max_length=LENGTH_CHARFIELDS, blank=False,
     )
     last_name = models.CharField(
-        'фамилия', max_length=LENGTH_CHARFIELDS, blank=True
-    )
-
-    role = models.CharField(
-        'роль', max_length=LENGTH_ROLES, blank=True,
-        default=USER, choices=USER_ROLES
+        'фамилия', max_length=LENGTH_CHARFIELDS, blank=False
     )
 
     avatar = models.ImageField(
         upload_to='user/avatars/', null=True, blank=True
     )
-    password = models.CharField(
-        'пароль', max_length=LENGTH_PASSWORD, blank=True
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = (
+        'username',
+        'first_name',
+        'last_name',
+        'password'
     )
 
     class Meta:
@@ -58,29 +55,6 @@ class ApiUser(AbstractUser):
 
     def __str__(self):
         return self.username
-
-    def save(self, **kwargs):
-        self.set_api_permissions()
-        super().save(**kwargs)
-
-    def set_api_permissions(self):
-        if self.is_superuser is True or self.user_is_admin:
-            self.role = ADMIN
-            self.is_staff = True
-        else:
-            self.is_staff = False
-
-    @property
-    def user_is_user(self):
-        if self.role == USER:
-            return True
-        return False
-
-    @property
-    def user_is_admin(self):
-        if self.role == ADMIN:
-            return True
-        return False
 
 
 class Subscription(models.Model):
@@ -107,6 +81,10 @@ class Subscription(models.Model):
             models.UniqueConstraint(
                 fields=['author', 'subscriber'],
                 name='unique_subscription'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(author=models.F('subscriber')),
+                name='cannot_subscribe_to_self'
             ),
         )
 
