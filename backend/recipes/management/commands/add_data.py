@@ -3,7 +3,6 @@ import csv
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
-from django.db.models import Q
 
 from recipes.models import Tag
 
@@ -24,7 +23,8 @@ class Command(BaseCommand):
                 name, slug = row[0], row[1]
                 if name in existing_tags or slug in existing_tags:
                     self.stdout.write(
-                        self.style.ERROR(f'Cannot add {name!r}: already exists!')
+                        self.style.ERROR(
+                            f'Cannot add {name!r}: already exists!')
                     )
                     continue
 
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.SUCCESS(f'Successfully added {tag.name!r}')
                     )
-        except(IntegrityError, Exception):
+        except (IntegrityError, Exception):
             pass
 
         # with open('data/ingredients.json') as f:
