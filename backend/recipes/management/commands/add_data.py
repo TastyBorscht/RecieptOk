@@ -1,9 +1,9 @@
-import json
+import csv
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 
 from foodgram_backend import settings
-from recipes.models import Tag, Ingredient
+from recipes.models import Ingredient
 
 
 class Inrgredient:

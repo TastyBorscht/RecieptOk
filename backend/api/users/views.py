@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, \
     IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from users.models import Subscription
 
@@ -108,53 +107,3 @@ class CustomUserViewSet(UserViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return serializer
-
-    @action(detail=False,
-            methods=['delete'],
-            permission_classes=[IsAuthenticated],
-            url_path='me/avatar')
-    def delete_avatar(self, request):
-        user = request.user
-        if user.avatar:
-            user.avatar.delete()
-            user.avatar = None
-            user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            {"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND
-        )
-
-#  При попытке уйти от отдельного Вью для аватара я
-#  неизбежно получаю ошибку Method \PUT\   not allowed либо 500,
-#  свои попытки закомментил. Сразу пытался делать всё в одном классе,
-#  LegendAvatarView это костыль ((
-
-
-class LegendAvatarView(APIView):
-    """Вью-класс управляющий Аватаром."""
-    permission_classes = [IsAuthenticated]
-    queryset = User.objects.all()
-
-    def put(self, request):
-        user = request.user
-        if 'avatar' not in request.data:
-            return Response(
-                {"detail": "Field 'avatar' is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        serializer = AvatarSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request):
-        user = request.user
-        if user.avatar:
-            user.avatar.delete()
-            user.avatar = None
-            user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            {"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND
-        )
