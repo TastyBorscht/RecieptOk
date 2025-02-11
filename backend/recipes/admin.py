@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.db.models import Count
 
-from .models import Ingredient, Recipe, \
-    Tag, IngredientInRecipe
 from .constants import MIN_NUM_INGREDIENTS
+from .models import Ingredient, IngredientInRecipe, Recipe, Tag
 
 
 class IngredientAmountInline(admin.TabularInline):

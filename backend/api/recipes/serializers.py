@@ -2,10 +2,12 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.ingredients.serializers import (IngredientAmountSerializer,
-                                         IngredientFullSerializer)
+from api.ingredients.serializers import (
+    IngredientAmountSerializer,
+    IngredientFullSerializer,
+)
 from api.tags.serializers import TagSerializer
-from api.users.serializers import UserRecipieSerializer, CustomUserSerializer
+from api.users.serializers import CustomUserSerializer, UserRecipieSerializer
 from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 from .constants import MAX_INGREDIENTS_IN_RECIPE, MIN_INGREDIENTS_IN_RECIPE
 

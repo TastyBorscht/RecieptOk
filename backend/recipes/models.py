@@ -4,6 +4,7 @@ from django.db import models
 
 from . import constants
 
+
 User = get_user_model()
 
 
