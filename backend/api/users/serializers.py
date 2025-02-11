@@ -1,66 +1,15 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.response import Response
 
 from recipes.models import Recipe
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
-from users.constants import (
-    LENGTH_CHARFIELDS,
-    LENGTH_EMAIL,
-    UNIQUE_EMAIL,
-    UNIQUE_USERNAME
-)
+
 from users.models import Subscription
 
 User = get_user_model()
 
-
-# class CustomUserCreateSerializer(UserCreateSerializer):
-#     """Сериализатор для создания объекта класса User."""
-#
-#     avatar = Base64ImageField()
-#
-#     class Meta:
-#         model = User
-#         fields = (
-#             'email',
-#             'id',
-#             'username',
-#             'first_name',
-#             'last_name',
-#             'password',
-#             'avatar',
-#         )
-#         extra_kwargs = {"password": {"write_only": True}}
-#
-#     def validate(self, data):
-#         """Запрещает пользователям присваивать себе username me
-#         и использовать повторные username и email."""
-#         if data.get('username') == 'me':
-#             raise serializers.ValidationError(
-#                 'Использовать имя me запрещено'
-#             )
-#         if User.objects.filter(username=data.get('username')):
-#             raise serializers.ValidationError(
-#                 'Пользователь с таким username уже существует'
-#             )
-#         if User.objects.filter(email=data.get('email')):
-#             raise serializers.ValidationError(
-#                 'Пользователь с таким email уже существует'
-#             )
-#         return data
-#
-#     def create(self, validated_data):
-#         """Создаёт пользователя с учётом поля avatar."""
-#         avatar = validated_data.pop('avatar', None)  # Извлекаем avatar из данных
-#         user = super().create(validated_data)  # Создаём пользователя
-#         if avatar:
-#             user.avatar = avatar  # Присваиваем avatar, если он был передан
-#             user.save()
-#         return user
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     """Сериализатор для создания объекта класса User."""
@@ -240,9 +189,9 @@ class SubscribeSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         request_method = self.context.get('request').method
 
-        # Проверка на существующую подписку для POST-запроса
         if request_method == 'POST':
-            if Subscription.objects.filter(author=author, subscriber=user).exists():
+            if Subscription.objects.filter(
+                    author=author, subscriber=user).exists():
                 raise ValidationError(
                     detail='Вы уже подписаны на этого пользователя!',
                     code=status.HTTP_400_BAD_REQUEST
@@ -254,12 +203,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
                 )
 
         if request_method == 'DELETE':
-            if not Subscription.objects.filter(author=author, subscriber=user).exists():
+            if not Subscription.objects.filter(
+                    author=author, subscriber=user).exists():
                 raise ValidationError(
                     detail='Вы не подписаны на этого пользователя!',
                     code=status.HTTP_400_BAD_REQUEST
                 )
 
         return data
-
-

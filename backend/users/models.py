@@ -16,8 +16,9 @@ class ApiUser(AbstractUser):
         max_length=LENGTH_CHARFIELDS,
         validators=[
             RegexValidator(
-                regex=r'^[\w.@+-]+\Z')
-            ],
+                regex=r'^[\w.@+-]+\Z'
+            )
+        ],
         unique=True,
         error_messages={
             'unique': (UNIQUE_USERNAME)

@@ -32,6 +32,8 @@ class Command(BaseCommand):
                            measurement_unit=ingredient['measurement_unit'])
                 for ingredient in ingredients_data
             ]
-            Ingredient.objects.bulk_create(ingredients_to_create, ignore_conflicts=True)
+            Ingredient.objects.bulk_create(
+                ingredients_to_create, ignore_conflicts=True)
 
-        self.stdout.write(self.style.SUCCESS('Successfully loaded ingredients'))
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully loaded ingredients'))

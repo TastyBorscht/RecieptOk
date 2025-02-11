@@ -3,7 +3,8 @@ from djoser.views import UserViewSet
 
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, \
+    IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -93,7 +94,8 @@ class CustomUserViewSet(UserViewSet):
     #     if serializer.is_valid():
     #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     return Response(serializer.errors,
+    #     status=status.HTTP_400_BAD_REQUEST)
     #
     # @action(detail=False,
     #         methods=['delete'],
@@ -110,8 +112,9 @@ class CustomUserViewSet(UserViewSet):
     #         {"detail": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND
     #     )
 
-#  При попытке уйти от отдельного Вью для аватара я неизбежно получаю ошибку Method \PUT\
-#  not allowed либо 500, свои попытки закомментил. Сразу пытался делать всё в одном классе,
+#  При попытке уйти от отдельного Вью для аватара я
+#  неизбежно получаю ошибку Method \PUT\   not allowed либо 500,
+#  свои попытки закомментил. Сразу пытался делать всё в одном классе,
 #  LegendAvatarView это костыль ((
 
 

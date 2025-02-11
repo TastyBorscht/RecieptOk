@@ -157,6 +157,7 @@ class BaseRecipeRelatedModel(models.Model):
 
         return f'{self.user} {self.recipe}'
 
+
 class ShoppingCart(BaseRecipeRelatedModel):
     """Модель для описания формирования покупок """
     user = models.ForeignKey(

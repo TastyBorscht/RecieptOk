@@ -81,7 +81,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated,)
     )
     def get_shopping_cart(self, request, pk):
-        """Позволяет текущему пользователю добавлять рецепты в список покупок."""
+        """Позволяет текущему пользователю
+        добавлять рецепты в список покупок."""
         return self._handle_post_delete_action(
             request, pk, ShoppingCart, ShoppingCartSerializer
         )

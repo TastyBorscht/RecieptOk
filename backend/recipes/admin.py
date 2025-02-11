@@ -1,14 +1,17 @@
 from django.contrib import admin
 from django.db.models import Count
 
-from .models import Ingredient, Recipe, Tag, IngredientInRecipe
+from .models import Ingredient, Recipe, \
+    Tag, IngredientInRecipe
+from .constants import MIN_NUM_INGREDIENTS
 
 
 class IngredientAmountInline(admin.TabularInline):
     """ Добавляет ингредиенты в рецепты в админке."""
 
     model = IngredientInRecipe
-    min_num = 1
+    min_num = MIN_NUM_INGREDIENTS
+
 
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
@@ -32,7 +35,8 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.annotate(favorites_count=Count('favoriting'))
+        queryset = queryset.annotate(
+            favorites_count=Count('favoriting'))
         return queryset
 
     def favorites_count(self, obj):
@@ -42,13 +46,14 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def get_author(self, obj):
         """Возвращает автора рецепта."""
-        return obj.author.username  # Предполагается, что author — это ForeignKey на User
+        return obj.author.username
 
     get_author.short_description = 'Автор'
 
     def get_ingredients(self, obj):
         """Возвращает список ингредиентов."""
-        return ", ".join([ingredient.name for ingredient in obj.ingredients.all()])
+        return ", ".join(
+            [ingredient.name for ingredient in obj.ingredients.all()])
 
     get_ingredients.short_description = 'Ингредиенты'
 
@@ -57,6 +62,7 @@ class RecipeAdmin(admin.ModelAdmin):
         return ", ".join([tag.name for tag in obj.tags.all()])
 
     get_tags.short_description = 'Теги'
+
 
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register([Tag, Ingredient])
