@@ -1,35 +1,27 @@
 import csv
+
+from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db import IntegrityError
+from django.db.models import Q
 
-from foodgram_backend import settings
-from recipes.models import Ingredient
-
-
-class Inrgredient:
-    pass
+from recipes.models import Tag
 
 
-#  не смотря на bulk_create на удаленном сервере эта команда выбрасывает ошибку
-#  django.***.utils.DataError: value too long for type character varying(50)
-# 2025/02/11 02:26:27 Process exited with status 1
 class Command(BaseCommand):
-    help = 'Load data from recipe.csv and tags.csv'
-
     def handle(self, *args, **options):
-        file_path = settings.BASE_DIR / 'data/ingredients.csv'
+        file_path = settings.BASE_DIR / 'data/tags.csv'
         with open(file_path, 'r', encoding='utf-8') as f:
-            try:
-                Ingredient.objects.bulk_create(
-                    Ingredient(name=row[0], measurement_unit=row[1])
-                    for row in csv.reader(f)
-                )
+            for row in csv.reader(f):
+                if Tag.objects.filter(
+                    Q(name=row[0]) | Q(slug=row[1])
+                ).exists():
+                    self.stdout.write(
+                        self.style.ERROR(f'{row[0]!r} already exists!')
+                    )
+                    continue
+                Tag.objects.create(name=row[0], slug=row[1])
                 self.stdout.write(
-                    self.style.SUCCESS('Successfully added ingredients!')
-                )
-            except IntegrityError:
-                self.stdout.write(
-                    self.style.ERROR('Ingredients already exists!')
+                    self.style.SUCCESS(f'Successfully added {row[0]!r}')
                 )
 
         # with open('data/ingredients.json') as f:
