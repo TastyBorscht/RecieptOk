@@ -2,52 +2,51 @@ import csv
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db import IntegrityError
+from django.db.models.fields import json
 
-from recipes.models import Tag
+from recipes.models import Tag, Ingredient
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         file_path = settings.BASE_DIR / 'data/tags.csv'
 
-        tags_to_create = []
-        existing_tags = set()
+        existing_tags = set(Tag.objects.values_list('name', 'slug', flat=True))
 
-        for tag in Tag.objects.all():
-            existing_tags.add(tag.name)
-            existing_tags.add(tag.slug)
+        tags_to_create = []
 
         with open(file_path, 'r', encoding='utf-8') as f:
-            for row in csv.reader(f):
-                name, slug = row[0], row[1]
+            reader = csv.reader(f)
+            for name, slug in reader:
                 if name in existing_tags or slug in existing_tags:
                     self.stdout.write(
                         self.style.ERROR(
-                            f'Cannot add {name!r}: already exists!')
+                            f'Cannot add {name!r}: already exists!'
+                        )
                     )
                     continue
 
                 tags_to_create.append(Tag(name=name, slug=slug))
-        try:
-            if tags_to_create:
-                Tag.objects.bulk_create(tags_to_create)
-                for tag in tags_to_create:
-                    self.stdout.write(
-                        self.style.SUCCESS(f'Successfully added {tag.name!r}')
-                    )
-        except (IntegrityError, Exception):
-            pass
 
-        # with open('data/ingredients.json') as f:
-        #     ingredients_data = json.load(f)
-        #     ingredients_to_create = [
-        #         Ingredient(name=ingredient['name'],
-        #                    measurement_unit=ingredient['measurement_unit'])
-        #         for ingredient in ingredients_data
-        #     ]
-        #     Ingredient.objects.bulk_create(
-        #         ingredients_to_create, ignore_conflicts=True)
-        #
-        # self.stdout.write(self.style.SUCCESS(
-        #     'Successfully loaded ingredients'))
+        if tags_to_create:
+            try:
+                Tag.objects.bulk_create(tags_to_create)
+            except Exception:
+                pass
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully loaded tags'))
+        with open('data/ingredients.json') as f:
+            ingredients_data = json.load(f)
+            ingredients_to_create = [
+                Ingredient(name=ingredient['name'],
+                           measurement_unit=ingredient['measurement_unit'])
+                for ingredient in ingredients_data
+            ]
+            try:
+                Ingredient.objects.bulk_create(
+                    ingredients_to_create, ignore_conflicts=True)
+            except Exception:
+                pass
+
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully loaded ingredients'))
