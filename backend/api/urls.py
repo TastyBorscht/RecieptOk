@@ -9,4 +9,5 @@ urlpatterns = [
     path('recipes/', include('api.recipes.urls')),
     path('tags/', include('api.tags.urls')),
     path('users/', include('api.users.urls')),
+    path('', include('djoser.urls')),
 ]
