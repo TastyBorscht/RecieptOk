@@ -23,10 +23,12 @@ class Command(BaseCommand):
         with open('data/ingredients.json', encoding='utf-8') as f:
             ingredients_data = json.load(f)
             ingredients_to_create = [
-                Ingredient(name=ingredient['name'],
-                           measurement_unit=ingredient['measurement_unit'])
+                Ingredient(
+                    name=ingredient['name'][:50],
+                    measurement_unit=ingredient['measurement_unit'][:50]
+                )
                 for ingredient in ingredients_data
             ]
             Ingredient.objects.bulk_create(ingredients_to_create)
-        self.stdout.write(self.style.SUCCESS(
-            'Successfully loaded ingredients'))
+            self.stdout.write(self.style.SUCCESS(
+                'Successfully loaded ingredients'))
