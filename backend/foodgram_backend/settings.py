@@ -124,8 +124,10 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': False,
+    'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': False,
+    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
     'SERIALIZERS': {
         'user_create': 'djoser.serializers.UserCreateSerializer',
         'user': 'api.users.serializers.UserProfileMeSerializer',
