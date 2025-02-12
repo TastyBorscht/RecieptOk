@@ -66,7 +66,7 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Фотография рецепта',
         upload_to='recipes/',
-        blank=True
+        blank=False
     )
     text = models.TextField(
         verbose_name='Описание рецепта'
@@ -166,7 +166,7 @@ class BaseRecipeRelatedModel(models.Model):
 class ShoppingCart(BaseRecipeRelatedModel):
     """Модель для описания формирования покупок """
 
-    class Meta:
+    class Meta(BaseRecipeRelatedModel.Meta):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         default_related_name = 'shopping_cart'
@@ -175,7 +175,7 @@ class ShoppingCart(BaseRecipeRelatedModel):
 class Favorite(BaseRecipeRelatedModel):
     """Модель для создания избранного."""
 
-    class Meta:
+    class Meta(BaseRecipeRelatedModel.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         default_related_name = 'favoriting'

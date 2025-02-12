@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 from .constants import (
@@ -13,6 +14,7 @@ class ApiUser(AbstractUser):
     username = models.CharField(
         'имя пользователя',
         max_length=LENGTH_CHARFIELDS,
+        validators=[UnicodeUsernameValidator()],
         unique=True,
         error_messages={
             'unique': (UNIQUE_USERNAME)
