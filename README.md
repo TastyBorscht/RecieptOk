@@ -1,5 +1,7 @@
 ## Описание
-Foodgram - диплом.
+Foodgram - проект посвященный рецептам.
+Имеются возможности создания рецептов, подписки на пользователя, срздания и редак - 
+тирования своего профиля.
 
 
 - **запускается при выполнении команды git push**
@@ -8,24 +10,13 @@ Foodgram - диплом.
 - **deploy:** автоматический деплой на боевой сервер и запуск проекта.
 - **send_massage:** отправка уведомления пользователю в Телеграм.
 
-#### После успешного результата работы workflow зайдите на боевой сервер
+#### После успешного результата работы workflow зайдите на Ваш сервер
 
-- Примените миграции:
 
-```bash
-   sudo docker-compose exec backend python manage.py migrate
-```
-
-- Подгружаем статику:
+- Заполните базу стартовыми данными содержащими игредиенты и несколько тэгов:
 
 ```bash
-   sudo docker-compose exec backend python manage.py collectstatic --no-input
-```
-
-- Заполните базу тестовыми данными об ингредиентах:
-
-```bash
-   sudo docker-compose exec backend python manage.py load_ingredients_data
+   sudo docker-compose exec backend python manage.py add_data
 ```
 
 - Создайте суперпользователя:
