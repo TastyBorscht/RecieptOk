@@ -4,7 +4,7 @@ import json
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from recipes.models import Tag, Ingredient
+from recipes.models import Ingredient, Tag
 
 
 class Command(BaseCommand):
@@ -18,14 +18,6 @@ class Command(BaseCommand):
         with open(file_path, 'r', encoding='utf-8') as f:
             reader = csv.reader(f)
             for name, slug in reader:
-                if name in existing_tags or slug in existing_tags:
-                    self.stdout.write(
-                        self.style.ERROR(
-                            f'Cannot add {name!r}: already exists!'
-                        )
-                    )
-                    continue
-
                 tags_to_create.append(Tag(name=name, slug=slug))
 
         if tags_to_create:

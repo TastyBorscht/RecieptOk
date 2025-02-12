@@ -11,16 +11,16 @@ from rest_framework.response import Response
 from users.models import Subscription
 from .serializers import (
     AvatarSerializer,
-    CustomUserSerializer,
     SubscribeSerializer,
     User,
+    UserProfileMeSerializer,
 )
 
 
 class CustomUserViewSet(UserViewSet):
     """Вью-сет для обрабтки запросов на 'api/users/'."""
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = UserProfileMeSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     http_method_names = ['get', 'post', 'delete', 'put']
 
@@ -54,29 +54,6 @@ class CustomUserViewSet(UserViewSet):
             context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
-
-    @action(
-        detail=False,
-        methods=['get', 'patch'],
-        url_path='me',
-        url_name='me',
-        permission_classes=(IsAuthenticated,)
-    )
-    def get_me(self, request):
-        """Позволяет пользователю получить подробную информацию о себе
-        и редактировать её."""
-        if request.method == 'PATCH':
-            serializer = CustomUserSerializer(
-                request.user, data=request.data,
-                partial=True, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = CustomUserSerializer(
-            request.user, context={'request': request}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         methods=['put'],

@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
@@ -11,58 +11,7 @@ from users.models import Subscription
 User = get_user_model()
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
-    """Сериализатор для создания объекта класса User."""
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'password',
-        )
-        extra_kwargs = {
-            "password": {"write_only": True},
-            "id": {"read_only": True},
-        }
-
-    def validate(self, data):
-        """Запрещает пользователям присваивать себе username me
-        и использовать повторные username и email.
-        Также проверяет наличие полей first_name и last_name."""
-
-        if 'first_name' not in data or not data['first_name']:
-            raise serializers.ValidationError(
-                {"first_name": "Это поле обязательно."}
-            )
-
-        if 'last_name' not in data or not data['last_name']:
-            raise serializers.ValidationError(
-                {"last_name": "Это поле обязательно."}
-            )
-
-        if data.get('username') == 'me':
-            raise serializers.ValidationError(
-                {"username": "Использовать имя me запрещено"}
-            )
-
-        if User.objects.filter(username=data.get('username')).exists():
-            raise serializers.ValidationError(
-                {"username": "Пользователь с таким username уже существует"}
-            )
-
-        if User.objects.filter(email=data.get('email')).exists():
-            raise serializers.ValidationError(
-                {"email": "Пользователь с таким email уже существует"}
-            )
-
-        return data
-
-
-class CustomUserSerializer(UserSerializer):
+class UserProfileMeSerializer(UserSerializer):
     """Сериализатор для модели User."""
 
     avatar = Base64ImageField()
@@ -80,13 +29,6 @@ class CustomUserSerializer(UserSerializer):
             'avatar'
         )
 
-    def validate(self, data):
-        """Запрещает пользователям изменять себе username на me."""
-        if data.get('username') == 'me':
-            raise serializers.ValidationError(
-                'Использовать имя me запрещено'
-            )
-
     def get_is_subscribed(self, object):
         """Проверяет, подписан ли текущий пользователь на автора аккаунта."""
         request = self.context.get('request')
@@ -96,6 +38,7 @@ class CustomUserSerializer(UserSerializer):
 
 
 class AvatarSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления аватара."""
     avatar = Base64ImageField(required=True)
 
     class Meta:
@@ -125,13 +68,6 @@ class UserRecipieSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscriber'
         )
-
-    def validate(self, data):
-        """Запрещает пользователям изменять себе username на me."""
-        if data.get('username') == 'me':
-            raise serializers.ValidationError(
-                'Использовать имя me запрещено'
-            )
 
     def get_is_subscribed(self, object):
         """Проверяет, подписан ли текущий пользователь на автора аккаунта."""

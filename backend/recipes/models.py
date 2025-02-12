@@ -152,61 +152,30 @@ class BaseRecipeRelatedModel(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_%(class)s'
+            )
+        ]
 
     def __str__(self):
-        """Метод строкового представления модели."""
-
         return f'{self.user} {self.recipe}'
 
 
 class ShoppingCart(BaseRecipeRelatedModel):
     """Модель для описания формирования покупок """
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='shopping_cart',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='shopping_cart',
-        verbose_name='Рецепт'
-    )
 
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_shoppingcart'
-            )
-        ]
+        default_related_name = 'shopping_cart'
 
 
 class Favorite(BaseRecipeRelatedModel):
     """Модель для создания избранного."""
 
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='favoriting',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='favoriting',
-        verbose_name='Рецепт'
-    )
-
     class Meta:
-        """Мета-параметры модели"""
-
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_favorite'
-            )
-        ]
+        default_related_name = 'favoriting'

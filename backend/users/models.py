@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
 from django.db import models
 
 from .constants import (
@@ -14,11 +13,6 @@ class ApiUser(AbstractUser):
     username = models.CharField(
         'имя пользователя',
         max_length=LENGTH_CHARFIELDS,
-        validators=[
-            RegexValidator(
-                regex=r'^[\w.@+-]+\Z'
-            )
-        ],
         unique=True,
         error_messages={
             'unique': (UNIQUE_USERNAME)
@@ -46,7 +40,6 @@ class ApiUser(AbstractUser):
         'username',
         'first_name',
         'last_name',
-        'password'
     )
 
     class Meta:

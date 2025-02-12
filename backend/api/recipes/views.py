@@ -1,3 +1,4 @@
+import pyshorteners
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,7 +11,6 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-import pyshorteners
 
 from api.recipes.filters import RecipeFilter
 from api.recipes.permissions import AuthorOrReadOnly

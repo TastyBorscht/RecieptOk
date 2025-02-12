@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db.models import Count
 
 from .constants import MIN_NUM_INGREDIENTS
 from .models import Ingredient, IngredientInRecipe, Recipe, Tag
@@ -31,12 +30,6 @@ class RecipeAdmin(admin.ModelAdmin):
         IngredientAmountInline,
     ]
     search_fields = ('author', 'name')
-
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.annotate(
-            favorites_count=Count('favoriting'))
-        return queryset
 
     def favorites_count(self, obj):
         return obj.favorites_count

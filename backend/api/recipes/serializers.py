@@ -7,7 +7,10 @@ from api.ingredients.serializers import (
     IngredientFullSerializer,
 )
 from api.tags.serializers import TagSerializer
-from api.users.serializers import CustomUserSerializer, UserRecipieSerializer
+from api.users.serializers import (
+    UserProfileMeSerializer,
+    UserRecipieSerializer,
+)
 from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 from .constants import MAX_INGREDIENTS_IN_RECIPE, MIN_INGREDIENTS_IN_RECIPE
 
@@ -16,7 +19,7 @@ class RecipesListSerializer(serializers.ModelSerializer):
     """Сериализатор объектов класса Recipe при GET запросах."""
 
     tags = TagSerializer(many=True, read_only=True)
-    author = CustomUserSerializer(read_only=True)
+    author = UserProfileMeSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
