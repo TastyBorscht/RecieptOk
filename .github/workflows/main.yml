@@ -96,7 +96,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "docker-compose.production.yml"
-          target: "foodgram/backend"
+          target: "backend"
       - name: Create .env file
         run: |
           echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
@@ -116,7 +116,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: ".env"
-          target: "foodgram"
+          target: "foodgram/backend"
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
