@@ -124,7 +124,6 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': False,
     'HIDE_USERS': False,
     'SERIALIZERS': {
