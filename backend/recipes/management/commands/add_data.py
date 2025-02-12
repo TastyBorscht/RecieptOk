@@ -20,7 +20,7 @@ class Command(BaseCommand):
             Tag.objects.bulk_create(tags_to_create)
         self.stdout.write(self.style.SUCCESS(
             'Successfully loaded tags'))
-        with open('data/ingredients.json') as f:
+        with open('data/ingredients.json', encoding='utf-8') as f:
             ingredients_data = json.load(f)
             ingredients_to_create = [
                 Ingredient(name=ingredient['name'],
