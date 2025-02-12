@@ -1,4 +1,3 @@
-import pyshorteners
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -23,6 +22,7 @@ from api.recipes.serializers import (
 )
 from api.recipes.utils import create_shopping_cart
 from api.tags.serializers import TagSerializer
+import pyshorteners
 from recipes.models import (
     Favorite,
     IngredientInRecipe,
@@ -139,6 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         long_url = request.build_absolute_uri(reverse(
             'recipe-detail', args=[recipe.id]
         ))
+        short_url = long_url.replace('/api/', '/')
         s = pyshorteners.Shortener()
-        short_link = s.tinyurl.short(long_url)
+        short_link = s.tinyurl.short(short_url)
         return Response({'short-link': short_link}, status=status.HTTP_200_OK)
