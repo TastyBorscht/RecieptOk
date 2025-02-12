@@ -5,6 +5,7 @@ from django.urls import include, path
 
 from mypages.views import About, Technologies
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
