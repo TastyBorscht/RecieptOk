@@ -138,3 +138,7 @@ DJOSER = {
         'current_user': ['rest_framework.permissions.IsAuthenticated'],
     },
 }
+
+CSRF_TRUSTED_ORIGINS = [
+       'https://foodtastyborscht.bounceme.net',
+   ]
