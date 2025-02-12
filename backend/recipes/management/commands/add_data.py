@@ -17,12 +17,7 @@ class Command(BaseCommand):
             reader = csv.reader(f)
             for name, slug in reader:
                 tags_to_create.append(Tag(name=name, slug=slug))
-
-        if tags_to_create:
-            try:
-                Tag.objects.bulk_create(tags_to_create)
-            except Exception:
-                pass
+            Tag.objects.bulk_create(tags_to_create)
         self.stdout.write(self.style.SUCCESS(
             'Successfully loaded tags'))
         with open('data/ingredients.json') as f:
@@ -32,11 +27,6 @@ class Command(BaseCommand):
                            measurement_unit=ingredient['measurement_unit'])
                 for ingredient in ingredients_data
             ]
-            try:
-                Ingredient.objects.bulk_create(
-                    ingredients_to_create, ignore_conflicts=True)
-            except Exception:
-                pass
-
+            Ingredient.objects.bulk_create(ingredients_to_create)
         self.stdout.write(self.style.SUCCESS(
             'Successfully loaded ingredients'))
