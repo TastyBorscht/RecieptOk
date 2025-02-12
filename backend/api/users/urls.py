@@ -12,5 +12,7 @@ urlpatterns = [
     path('me/', UserViewSet.as_view({
         'get': 'me',
     }), name='user-me'),
+    path('auth/', include('djoser.urls.authtoken')),
+    # path('auth/', include('djoser.urls')),
     path('', include(user_router.urls)),
 ]
