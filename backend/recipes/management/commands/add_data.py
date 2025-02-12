@@ -11,8 +11,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         file_path = settings.BASE_DIR / 'data/tags.csv'
 
-        existing_tags = set(Tag.objects.values_list('name', 'slug', flat=True))
-
         tags_to_create = []
 
         with open(file_path, 'r', encoding='utf-8') as f:
