@@ -140,5 +140,5 @@ DJOSER = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-       'https://foodtastyborscht.bounceme.net',
+    'https://foodtastyborscht.bounceme.net',
 ]
